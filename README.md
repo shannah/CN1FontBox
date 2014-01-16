@@ -95,4 +95,4 @@ The output of this code would be something like:
 
 ##Documentation
 
-1. [JavaDocs](https://rawgithub.com/shannah/CN1FontBox/master/dist/javadoc/index.html)
+1. [JavaDocs](https://rawgithub.com/shannah/CN1FontBox/blob/master/dist/javadoc/index.html)
