@@ -18,6 +18,7 @@
  */
 package org.apache.fontbox.ttf;
 
+import com.codename1.io.Log;
 import pisces.Path;
 import pisces.d.Point2D;
 
@@ -111,6 +112,7 @@ public class Glyph2D
     {
         Path path = new Path();
         int numberOfPoints = points.length;
+        //Log.p("Num points in glyph "+numberOfPoints);
         int i=0;
         boolean endOfContour = true;
         Point startingPoint = null;

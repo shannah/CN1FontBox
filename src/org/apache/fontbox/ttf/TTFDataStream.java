@@ -20,6 +20,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import ca.weblite.codename1.lang.*;
+import com.codename1.ui.Display;
 
 /**
  * An interface into a data stream.
@@ -29,6 +30,14 @@ import ca.weblite.codename1.lang.*;
  */
 public abstract class TTFDataStream
 {
+    
+    static boolean isIOS = false;
+    
+    static {
+        if ( "ios".equals(Display.getInstance().getPlatformName())){
+            isIOS = true;
+        }
+    }
 
     /**
      * Read a 16.16 fixed value, where the first 16 bits are the decimal and the last 16 bits are the fraction.
@@ -70,6 +79,9 @@ public abstract class TTFDataStream
         try {
             // Because iOS is throwing an exception here for UTF-16 input
             // we'll just fudge it and catch the NPE
+            if ( isIOS && "UTF-16".equals(charset) ){
+                charset = "ISO-8859-1";
+            }
             return new String(buffer, charset);
         } catch ( NullPointerException npe){
             return new String(buffer);
