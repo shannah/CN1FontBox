@@ -67,7 +67,13 @@ public abstract class TTFDataStream
     public String readString(int length, String charset) throws IOException
     {
         byte[] buffer = read(length);
-        return new String(buffer, charset);
+        try {
+            // Because iOS is throwing an exception here for UTF-16 input
+            // we'll just fudge it and catch the NPE
+            return new String(buffer, charset);
+        } catch ( NullPointerException npe){
+            return new String(buffer);
+        }
     }
 
     /**
