@@ -18,6 +18,7 @@ package org.apache.fontbox.ttf;
 
 
 
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,6 +41,10 @@ import pisces.m.Matrix;
  */
 public class TrueTypeFont 
 {
+    Map<String,pisces.Font> fontCache = new HashMap<String,pisces.Font>();
+    Path[] glyphPaths;
+    
+    
     private float version; 
     
     private Map<String,TTFTable> tables = new HashMap<String,TTFTable>();
@@ -55,6 +60,28 @@ public class TrueTypeFont
     {
         data = fontData;
     }
+    
+    private void initPaths(){
+        if ( glyphPaths == null ){
+            int numGlyphs = this.getGlyph().getGlyphs().length;
+            glyphPaths = new Path[numGlyphs];
+        }
+        
+    }
+    
+    
+    private Path getGlyphPath(int glyphId){
+        initPaths();
+        if ( glyphPaths[glyphId] == null ){
+            GlyphData data = this.getGlyph().getGlyphs()[glyphId];
+            Glyph2D g2d = new Glyph2D(data.getDescription(),(short)100, 200);
+            glyphPaths[glyphId] = g2d.getPath();
+        }
+        return glyphPaths[glyphId];
+        
+    }
+    
+    
     
     /**
      * Close the underlying resources.
@@ -202,9 +229,15 @@ public class TrueTypeFont
     }
     
     public pisces.Font getFont(String asName, float size){
-        HeaderTable h = getHeader();
-        
-        return new pisces.Font(asName, new PiscesFontCollection(size));
+        String key = asName+size;
+        if ( fontCache.containsKey(key)){
+            return fontCache.get(key);
+        } else {
+            pisces.Font f = new pisces.Font(asName, new PiscesFontCollection(size));
+            
+            fontCache.put(key, f);
+            return f;
+        }
     }
     
     /**
@@ -225,10 +258,24 @@ public class TrueTypeFont
         
         final float size;
         
+        pisces.Image[] bitmaps;
+        
+        
+        
         public PiscesFontCollection(float size){
             this.size = size;
         }
 
+        
+        pisces.Image[] bitmaps(){
+            if ( bitmaps == null ){
+                bitmaps = new pisces.Image[TrueTypeFont.this.getGlyph().getGlyphs().length];
+            }
+            return bitmaps;
+        }
+        
+        
+        
         public Font.Kind getKind() {
             return Font.Kind.Draw;
         }
@@ -273,62 +320,80 @@ public class TrueTypeFont
             throw new RuntimeException("Not implemented yet");
         }
         
+        
+        
+        class GlyphImpl implements Glyph {
+
+            final float size;
+            final GlyphData data;
+            final char id;
+            final static float resolution = 300f;
+            final int glyphId;
+            GlyphImpl(GlyphData data, char id, float size, int glyphId){
+                this.data = data;
+                this.id = id;
+                this.size = size;
+                this.glyphId = glyphId;
+
+            }
+
+            public char getId() {
+                return id;
+            }
+
+            private pisces.Image getBitmap(){
+                if ( bitmaps()[glyphId] == null ){
+                    pisces.Image img = new pisces.Image(getWidth(), getHeight());
+                    pisces.Graphics g = img.createGraphics();
+                    g.setColor(pisces.Color.Black);
+                    draw(g, 0, 0, 0f);
+                    bitmaps()[glyphId] = img;
+                }
+                return bitmaps()[glyphId];
+            }
+
+            public int getWidth() {
+                HeaderTable h = TrueTypeFont.this.getHeader();
+                float advance = TrueTypeFont.this.getHorizontalMetrics().getAdvanceWidth()[glyphId];
+
+                float upem = h.getUnitsPerEm();
+
+                int w = (int)(size * advance/upem);
+                return w;
+
+            }
+
+            public int getHeight() {
+                return (int)size;
+            }
+
+            public Glyph blit(Graphics g, int x, int y, float opacity) {
+                g.blit(getBitmap(), x, y,opacity);
+                return this;
+            }
+
+            public Glyph draw(pisces.Graphics g, int x, int y, float opacity) {
+                //Glyph2D g2d = new Glyph2D(this.data.getDescription(),(short)100, 200);
+                //Path p = null;
+                HeaderTable h = TrueTypeFont.this.getHeader();
+                float upem = h.getUnitsPerEm();
+
+                float scale = size / upem;
+                Matrix transform = Matrix.getTranslateInstance(x, y+getHeight());
+                transform.scale(scale, -scale);
+
+                Path p = getGlyphPath(glyphId);
+                Path p2 = new Path();
+                p.produce(p2);
+                p2.transform(transform);
+                g.fill(p2);
+                return this;
+
+            }
+
+        }
+        
     }
     
-    class GlyphImpl implements Glyph {
-        
-        final float size;
-        final GlyphData data;
-        final char id;
-        final static float resolution = 300f;
-        final int glyphId;
-        GlyphImpl(GlyphData data, char id, float size, int glyphId){
-            this.data = data;
-            this.id = id;
-            this.size = size;
-            this.glyphId = glyphId;
-            
-        }
-     
-        public char getId() {
-            return id;
-        }
-
-        public int getWidth() {
-            HeaderTable h = TrueTypeFont.this.getHeader();
-            float advance = TrueTypeFont.this.getHorizontalMetrics().getAdvanceWidth()[glyphId];
-            
-            float upem = h.getUnitsPerEm();
-            
-            int w = (int)(size * advance/upem);
-            return w;
-            
-        }
-
-        public int getHeight() {
-            return (int)size;
-        }
-
-        public Glyph blit(Graphics grphcs, int i, int i1, float f) {
-            throw new RuntimeException("No blitting allowed on this one... draw instead");
-        }
-
-        public Glyph draw(pisces.Graphics g, int x, int y, float f) {
-            Glyph2D g2d = new Glyph2D(this.data.getDescription(),(short)100, 200);
-            Path p = null;
-            HeaderTable h = TrueTypeFont.this.getHeader();
-            float upem = h.getUnitsPerEm();
-            
-            float scale = size / upem;
-            Matrix transform = Matrix.getTranslateInstance(x, y+getHeight());
-            transform.scale(scale, -scale);
-            
-            p = g2d.getPath();
-            p.transform(transform);
-            g.fill(p);
-            return this;
-            
-        }
-        
-    }
+    
 }
