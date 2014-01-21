@@ -189,8 +189,12 @@ public class Glyph2D
             {
                 Point2D lastEndPoint = path.getCurrentPoint();
                 // calculate new control point using the previous control point
-                lastCtrlPoint = new Point(midValue(lastCtrlPoint.x, (int)lastEndPoint.getX()), 
-                        midValue(lastCtrlPoint.y, (int)lastEndPoint.getY()));
+                if ( lastCtrlPoint != null ){
+                    lastCtrlPoint = new Point(midValue(lastCtrlPoint.x, (int)lastEndPoint.getX()), 
+                            midValue(lastCtrlPoint.y, (int)lastEndPoint.getY()));
+                } else {
+                    lastCtrlPoint = new Point((int)lastEndPoint.getX(), (int)lastEndPoint.getY());
+                }
                 // interpolate endPoint
                 int endPointX = midValue((int)lastEndPoint.getX(), nextPoint1.x);
                 int endPointY = midValue((int)lastEndPoint.getY(), nextPoint1.y);
