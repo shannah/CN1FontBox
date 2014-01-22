@@ -303,13 +303,16 @@ public class TrueTypeFont
 
         public int getMaxWidth() {
             HeaderTable h  = TrueTypeFont.this.getHeader();
-            int w= h.getXMax()-h.getXMin();
+            float upem = h.getUnitsPerEm();
+            int w= (int)(size * (h.getXMax()-h.getXMin())/upem);
             return w;
         }
 
         public int getMaxHeight() {
             HeaderTable h = TrueTypeFont.this.getHeader();
-            return h.getYMax()-h.getYMin();
+            float upem = h.getUnitsPerEm();
+            int hi = (int)(size * (h.getYMax()-h.getYMin())/upem);
+            return hi;
         }
 
         public void read(InputStream in) throws IOException {
@@ -364,7 +367,7 @@ public class TrueTypeFont
             }
 
             public int getHeight() {
-                return (int)size;
+                return (int)getMaxHeight();
             }
 
             public Glyph blit(Graphics g, int x, int y, float opacity) {
@@ -387,6 +390,25 @@ public class TrueTypeFont
                 p.produce(p2);
                 p2.transform(transform);
                 g.fill(p2);
+                return this;
+
+            }
+            
+            public Glyph draw(pisces.d.PathSink g, int x, int y, float opacity) {
+                //Glyph2D g2d = new Glyph2D(this.data.getDescription(),(short)100, 200);
+                //Path p = null;
+                HeaderTable h = TrueTypeFont.this.getHeader();
+                float upem = h.getUnitsPerEm();
+
+                float scale = size / upem;
+                Matrix transform = Matrix.getTranslateInstance(x, y+getHeight());
+                transform.scale(scale, -scale);
+
+                Path p = getGlyphPath(glyphId);
+                Path p2 = new Path();
+                p.produce(p2);
+                p2.transform(transform);
+                p2.produce(g);
                 return this;
 
             }

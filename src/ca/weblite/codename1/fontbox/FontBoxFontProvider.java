@@ -6,6 +6,7 @@
 
 package ca.weblite.codename1.fontbox;
 
+import com.codename1.io.Log;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -30,7 +31,9 @@ public class FontBoxFontProvider implements Font.FontProvider{
     private static FontBoxFontProvider defaultProvider = null;
     public static FontBoxFontProvider getDefaultProvider(){
         if ( defaultProvider == null ){
+            
             defaultProvider = new FontBoxFontProvider();
+            pisces.Font.addProvider(defaultProvider);
         }
         return defaultProvider;
     }
