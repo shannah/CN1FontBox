@@ -19,6 +19,7 @@ package org.apache.fontbox.ttf;
 
 
 
+import com.codename1.io.Log;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -234,7 +235,16 @@ public class TrueTypeFont
             return fontCache.get(key);
         } else {
             pisces.Font f = new pisces.Font(asName, new PiscesFontCollection(size));
+            HeaderTable h = this.getHeader();
+            float upem = h.getUnitsPerEm();
+            float ascender = this.getHorizontalHeader().getAscender();
+            float scale = size / upem;
+            ascender = ascender * scale;
             
+            float descender = this.getHorizontalHeader().getDescender();
+            descender = descender * scale;
+            f.setAscent((int)ascender);
+            f.setDescent((int)descender);
             fontCache.put(key, f);
             return f;
         }
@@ -380,9 +390,11 @@ public class TrueTypeFont
                 //Path p = null;
                 HeaderTable h = TrueTypeFont.this.getHeader();
                 float upem = h.getUnitsPerEm();
-
+                float ascender = TrueTypeFont.this.getHorizontalHeader().getAscender();
+                
                 float scale = size / upem;
-                Matrix transform = Matrix.getTranslateInstance(x, y+getHeight());
+                ascender = ascender * scale;
+                Matrix transform = Matrix.getTranslateInstance(x, y+getHeight()-ascender);
                 transform.scale(scale, -scale);
 
                 Path p = getGlyphPath(glyphId);
@@ -399,9 +411,10 @@ public class TrueTypeFont
                 //Path p = null;
                 HeaderTable h = TrueTypeFont.this.getHeader();
                 float upem = h.getUnitsPerEm();
-
+                float ascender = TrueTypeFont.this.getHorizontalHeader().getAscender();
                 float scale = size / upem;
-                Matrix transform = Matrix.getTranslateInstance(x, y+getHeight());
+                ascender = ascender * scale;
+                Matrix transform = Matrix.getTranslateInstance(x, y+getHeight()-ascender);
                 transform.scale(scale, -scale);
 
                 Path p = getGlyphPath(glyphId);
