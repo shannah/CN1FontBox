@@ -13,11 +13,11 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.fontbox.ttf.TTFParser;
 import org.apache.fontbox.ttf.TrueTypeFont;
-import pisces.Font;
+import ca.weblite.pisces.Font;
 
 /**
  * A font provider for the FontBox library that should be registered with
- * pisces.Font so that it can make use of true-type fonts loaded through
+ * ca.weblite.pisces.Font so that it can make use of true-type fonts loaded through
  * fontbox.  
  * 
  * Currently this only provides a facade for truetype fonts even though fontbox
@@ -33,7 +33,7 @@ public class FontBoxFontProvider implements Font.FontProvider{
         if ( defaultProvider == null ){
             
             defaultProvider = new FontBoxFontProvider();
-            pisces.Font.addProvider(defaultProvider);
+            ca.weblite.pisces.Font.addProvider(defaultProvider);
         }
         return defaultProvider;
     }
