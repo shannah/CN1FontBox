@@ -27,12 +27,12 @@ import java.util.Map;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
-import pisces.Font;
-import pisces.Font.Glyph;
-import pisces.Graphics;
-import pisces.Path;
+import ca.weblite.pisces.Font;
+import ca.weblite.pisces.Font.Glyph;
+import ca.weblite.pisces.Graphics;
+import ca.weblite.pisces.Path;
 
-import pisces.m.Matrix;
+import ca.weblite.pisces.m.Matrix;
 
 /**
  * A class to hold true type font information.
@@ -42,7 +42,7 @@ import pisces.m.Matrix;
  */
 public class TrueTypeFont 
 {
-    Map<String,pisces.Font> fontCache = new HashMap<String,pisces.Font>();
+    Map<String,ca.weblite.pisces.Font> fontCache = new HashMap<String,ca.weblite.pisces.Font>();
     Path[] glyphPaths;
     
     
@@ -229,12 +229,12 @@ public class TrueTypeFont
         return (CMAPTable)tables.get( CMAPTable.TAG );
     }
     
-    public pisces.Font getFont(String asName, float size){
+    public ca.weblite.pisces.Font getFont(String asName, float size){
         String key = asName+size;
         if ( fontCache.containsKey(key)){
             return fontCache.get(key);
         } else {
-            pisces.Font f = new pisces.Font(asName, new PiscesFontCollection(size));
+            ca.weblite.pisces.Font f = new ca.weblite.pisces.Font(asName, new PiscesFontCollection(size));
             HeaderTable h = this.getHeader();
             float upem = h.getUnitsPerEm();
             float ascender = this.getHorizontalHeader().getAscender();
@@ -268,7 +268,7 @@ public class TrueTypeFont
         
         final float size;
         
-        pisces.Image[] bitmaps;
+        ca.weblite.pisces.Image[] bitmaps;
         
         
         
@@ -277,9 +277,9 @@ public class TrueTypeFont
         }
 
         
-        pisces.Image[] bitmaps(){
+        ca.weblite.pisces.Image[] bitmaps(){
             if ( bitmaps == null ){
-                bitmaps = new pisces.Image[TrueTypeFont.this.getGlyph().getGlyphs().length];
+                bitmaps = new ca.weblite.pisces.Image[TrueTypeFont.this.getGlyph().getGlyphs().length];
             }
             return bitmaps;
         }
@@ -354,11 +354,11 @@ public class TrueTypeFont
                 return id;
             }
 
-            private pisces.Image getBitmap(){
+            private ca.weblite.pisces.Image getBitmap(){
                 if ( bitmaps()[glyphId] == null ){
-                    pisces.Image img = new pisces.Image(getWidth(), getHeight());
-                    pisces.Graphics g = img.createGraphics();
-                    g.setColor(pisces.Color.Black);
+                    ca.weblite.pisces.Image img = new ca.weblite.pisces.Image(getWidth(), getHeight());
+                    ca.weblite.pisces.Graphics g = img.createGraphics();
+                    g.setColor(ca.weblite.pisces.Color.Black);
                     draw(g, 0, 0, 0f);
                     bitmaps()[glyphId] = img;
                 }
@@ -385,7 +385,7 @@ public class TrueTypeFont
                 return this;
             }
 
-            public Glyph draw(pisces.Graphics g, int x, int y, float opacity) {
+            public Glyph draw(ca.weblite.pisces.Graphics g, int x, int y, float opacity) {
                 //Glyph2D g2d = new Glyph2D(this.data.getDescription(),(short)100, 200);
                 //Path p = null;
                 HeaderTable h = TrueTypeFont.this.getHeader();
@@ -406,7 +406,7 @@ public class TrueTypeFont
 
             }
             
-            public Glyph draw(pisces.d.PathSink g, int x, int y, float opacity) {
+            public Glyph draw(ca.weblite.pisces.d.PathSink g, int x, int y, float opacity) {
                 //Glyph2D g2d = new Glyph2D(this.data.getDescription(),(short)100, 200);
                 //Path p = null;
                 HeaderTable h = TrueTypeFont.this.getHeader();

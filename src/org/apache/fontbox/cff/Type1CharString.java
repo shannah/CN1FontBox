@@ -25,10 +25,10 @@ import org.apache.fontbox.encoding.StandardEncoding;
 
 import java.io.IOException;
 import java.util.List;
-import pisces.Path;
-import pisces.d.Point2D;
-import pisces.d.Rectangle2D;
-import pisces.m.Matrix;
+import ca.weblite.pisces.Path;
+import ca.weblite.pisces.d.Point2D;
+import ca.weblite.pisces.d.Rectangle2D;
+import ca.weblite.pisces.m.Matrix;
 
 /**
  * This class represents and renders a Type 1 CharString.

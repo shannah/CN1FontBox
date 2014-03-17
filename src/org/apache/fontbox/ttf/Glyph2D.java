@@ -19,8 +19,8 @@
 package org.apache.fontbox.ttf;
 
 import com.codename1.io.Log;
-import pisces.Path;
-import pisces.d.Point2D;
+import ca.weblite.pisces.Path;
+import ca.weblite.pisces.d.Point2D;
 
 
 
