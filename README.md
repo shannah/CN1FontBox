@@ -142,6 +142,10 @@ font = font.deriveAntialias(false);
 
 ~~~
 font.drawString(g, "Hello world", x, y);
+
+// Or ...
+g.setFont(font);
+g.drawString("Hello world", x, y);
 ~~~
 
 ### Appending to existing GeneralPath
