@@ -46,6 +46,12 @@ Assuming you have a Codename One application project started in Netbeans:
 
 ### Loading TTF File
 
+**From InputStream:**
+
+~~~
+TTFFont font = TTFFont.createFont("MyFont", inputStream);
+~~~
+
 **From Resources:**
 
 ~~~
