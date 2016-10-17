@@ -110,6 +110,9 @@ font = font.deriveVerticalScaled(0.5f); // scaled 50% vertically
 ~~~
 font = font.deriveStroked(Stroke(1f, Stroke.CAP_BUTT, Stroke.JOIN_MITER, 1f), #ff0000);
     // Stroke with red 1px outline 
+
+font = font.deriveStroked(Stroke(1f, Stroke.CAP_BUTT, Stroke.JOIN_MITER, 1f), null);
+    // Stroked - stroke color determined by graphics context's current color.. e.g. defers to Style's foreground color
     
 font = font.deriveStroked(null, 0x0);
     // Not stroked
