@@ -1,6 +1,6 @@
 # Codename One FontBox Port
 
-This is a port of the [FontBox](http://sourceforge.net/projects/fontbox/) library for use with [Codename One](http://www.codenameone.com)'s [CN1Pisces](https://github.com/shannah/CN1Pisces) graphics library.
+This is a port of the [FontBox](http://sourceforge.net/projects/fontbox/) library for use with [Codename One](http://www.codenameone.com).
 
 This library adds the ability to load and render TTF fonts as scalable vectors.  This includes a `TTFFont` class that extends the core
 Codename One `Font` class so that it can be used pretty much any place a "normal" font would be used in Codename One.  The difference is
