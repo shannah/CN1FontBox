@@ -19,16 +19,15 @@ package org.apache.fontbox.cff;
 import ca.weblite.codename1.lang.*;
 import ca.weblite.codename1.lang.Integer;
 import ca.weblite.codename1.lang.Number;
+import com.codename1.ui.Transform;
+import com.codename1.ui.geom.GeneralPath;
 
 
 import org.apache.fontbox.encoding.StandardEncoding;
 
 import java.io.IOException;
 import java.util.List;
-import ca.weblite.pisces.Path;
-import ca.weblite.pisces.d.Point2D;
-import ca.weblite.pisces.d.Rectangle2D;
-import ca.weblite.pisces.m.Matrix;
+
 
 /**
  * This class represents and renders a Type 1 CharString.
@@ -40,7 +39,7 @@ public class Type1CharString
 {
     
     private CFFFont cffFont;
-    private Path path = null;
+    private GeneralPath path = null;
     private int width = 0;
     private Point2D leftSideBearing = null;
     private Point2D referencePoint = null;
@@ -76,7 +75,8 @@ public class Type1CharString
         {
             render();
         }
-        return path.getBounds2D();
+        float[] bounds = path.getBounds2D();
+        return new Rectangle2D(bounds[0], bounds[1], bounds[2], bounds[3]);
     }
 
     /**
@@ -96,7 +96,7 @@ public class Type1CharString
      * Returns the path of the character.
      * @return the path
      */
-    public Path getPath()
+    public GeneralPath getPath()
     {
         //TODO does not need to be lazy anymore?
         if (path == null)
@@ -120,7 +120,7 @@ public class Type1CharString
      */
     private void render() 
     {
-        path = new Path();
+        path = new GeneralPath();
         leftSideBearing = new Point2D(0, 0);
         referencePoint = null;
         width = 0;
@@ -206,7 +206,8 @@ public class Type1CharString
         Point2D point = referencePoint;
         if (point == null)
         {
-            point = path.getCurrentPoint();
+            float[] pt = path.getCurrentPoint();
+            point = new Point2D(pt[0], pt[1]);
             if (point == null)
             {
                 point = leftSideBearing;
@@ -222,7 +223,8 @@ public class Type1CharString
      */
     private void rlineTo(Number dx, Number dy)
     {
-        Point2D point = path.getCurrentPoint();
+        float[] pt = path.getCurrentPoint();
+        Point2D point = new Point2D(pt[0], pt[1]);
         path.lineTo((float)(point.getX() + dx.doubleValue()),
                     (float)(point.getY() + dy.doubleValue()));
     }
@@ -233,14 +235,15 @@ public class Type1CharString
     private void rrcurveTo(Number dx1, Number dy1, Number dx2, Number dy2,
             Number dx3, Number dy3)
     {
-        Point2D point = path.getCurrentPoint();
+        float[] pt = path.getCurrentPoint();
+        Point2D point = new Point2D(pt[0], pt[1]);
         float x1 = (float) point.getX() + dx1.floatValue();
         float y1 = (float) point.getY() + dy1.floatValue();
         float x2 = x1 + dx2.floatValue();
         float y2 = y1 + dy2.floatValue();
         float x3 = x2 + dx3.floatValue();
         float y3 = y2 + dy3.floatValue();
-        path.cubicTo(x1, y1, x2, y2, x3, y3);
+        path.curveTo(x1, y1, x2, y2, x3, y3);
     }
 
     /**
@@ -248,8 +251,9 @@ public class Type1CharString
      */
     private void closepath()
     {
-        referencePoint = path.getCurrentPoint();
-        path.close();
+        float[] pt = path.getCurrentPoint();
+        referencePoint = new Point2D(pt[0], pt[1]);
+        path.closePath();
     }
 
     /**
@@ -282,9 +286,9 @@ public class Type1CharString
                 Type1CharString accent = cffFont.getType1CharString(accentName);
                 
                 
-                Matrix at = Matrix.getTranslateInstance(
-                    leftSideBearing.getX() + adx.floatValue(),
-                    leftSideBearing.getY() + ady.floatValue());
+                Transform at = Transform.makeTranslation(
+                    (float)leftSideBearing.getX() + adx.floatValue(),
+                    (float)leftSideBearing.getY() + ady.floatValue());
                 path.append(accent.getPath().getPathIterator(at), false);
             }
             catch (IOException e)

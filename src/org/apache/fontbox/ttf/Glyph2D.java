@@ -18,9 +18,10 @@
  */
 package org.apache.fontbox.ttf;
 
+import ca.weblite.codename1.lang.Point2D;
 import com.codename1.io.Log;
-import ca.weblite.pisces.Path;
-import ca.weblite.pisces.d.Point2D;
+import com.codename1.ui.geom.GeneralPath;
+
 
 
 
@@ -36,7 +37,7 @@ public class Glyph2D
     private short leftSideBearing = 0;
     private int advanceWidth = 0;
     private Point[] points;
-    private Path glyphPath;
+    private GeneralPath glyphPath;
 
     /**
      * Constructor.
@@ -99,7 +100,7 @@ public class Glyph2D
      * 
      * @return the GeneralPath of the glyph
      */
-    public Path getPath() 
+    public GeneralPath getPath() 
     {
         if (glyphPath == null)
         {
@@ -108,9 +109,9 @@ public class Glyph2D
         return glyphPath;
     }
     
-    private Path calculatePath()
+    private GeneralPath calculatePath()
     {
-        Path path = new Path();
+        GeneralPath path = new GeneralPath();
         int numberOfPoints = points.length;
         //Log.p("Num points in glyph "+numberOfPoints);
         int i=0;
@@ -144,7 +145,7 @@ public class Glyph2D
                 if (point.endOfContour || nextPoint1.endOfContour)
                 {
                     endOfContour = true;
-                    path.close();
+                    path.closePath();
                 }
                 continue;
             } 
@@ -163,7 +164,7 @@ public class Glyph2D
                 if (nextPoint1.endOfContour || nextPoint2.endOfContour)
                 {
                     endOfContour = true;
-                    path.close();
+                    path.closePath();
                 }
                 i+=2;
                 lastCtrlPoint = nextPoint1;
@@ -179,7 +180,7 @@ public class Glyph2D
                 {
                     path.quadTo(nextPoint2.x, nextPoint2.y, startingPoint.x, startingPoint.y);
                     endOfContour = true;
-                    path.close();
+                    path.closePath();
                 }
                 i+=2;
                 lastCtrlPoint = nextPoint1;
@@ -187,7 +188,8 @@ public class Glyph2D
             } 
             if (!point.onCurve && !nextPoint1.onCurve) 
             {
-                Point2D lastEndPoint = path.getCurrentPoint();
+                float[] pt = path.getCurrentPoint();
+                Point2D lastEndPoint = new Point2D(pt[0], pt[1]);
                 // calculate new control point using the previous control point
                 if ( lastCtrlPoint != null ){
                     lastCtrlPoint = new Point(midValue(lastCtrlPoint.x, (int)lastEndPoint.getX()), 
@@ -202,7 +204,7 @@ public class Glyph2D
                 if (point.endOfContour || nextPoint1.endOfContour)
                 {
                     endOfContour = true;
-                    path.close();
+                    path.closePath();
                 }
                 i++;
                 continue;
@@ -213,7 +215,7 @@ public class Glyph2D
                 if (point.endOfContour || nextPoint1.endOfContour)
                 {
                     endOfContour = true;
-                    path.close();
+                    path.closePath();
                 }
                 i++;
                 lastCtrlPoint = point;

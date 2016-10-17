@@ -1,98 +1,142 @@
-#Codename One FontBox Port
+# Codename One FontBox Port
 
 This is a port of the [FontBox](http://sourceforge.net/projects/fontbox/) library for use with [Codename One](http://www.codenameone.com)'s [CN1Pisces](https://github.com/shannah/CN1Pisces) graphics library.
 
-This library adds the ability to load and render TTF fonts as scalable vectors on a Pisces 2D drawing surface like [pisces.Graphics](https://rawgithub.com/shannah/CN1Pisces/master/dist/javadoc/pisces/Graphics.html).
+This library adds the ability to load and render TTF fonts as scalable vectors.  This includes a `TTFFont` class that extends the core
+Codename One `Font` class so that it can be used pretty much any place a "normal" font would be used in Codename One.  The difference is
+that TTFFonts are rendered using the CN1 Shapes API.  While this would be slower than using regular fonts (which are rendered
+natively), this provides certain abilities that you don't have with normal fonts, such choosing to "stroke" or "fill" (or both - with different colors) text, scaling the width
+or height of a font, or potentially providing your own 3D transformations to the fonts. 
 
-##Features
+## Features
 
 1. Support for TTF Fonts
 2. Library additionally can support CFF, AFM. and PFB fonts but these haven't been specifically integrated into Codename One.
 3. Obtain font metrics, and glyph shapes as vector paths.
-4. Fonts can be used with AffineTransforms (scale, shear, rotate, translation) to draw text in any size and orientation.
-
-##Compatibility
-
-This library should be compatible with all platforms that Codename One runs on.  So far I have only tested it on the Simulator, iOS, and Android, but it should work on all platforms.
+4. Stroking support (e.g. outlines of fonts)
+5. Fonts can be used with AffineTransforms (scale, shear, rotate, translation) to draw text in any size and orientation.
 
 
-##License
+## Compatibility
+
+This should work on any platform that supports the CN1 shapes API.  This currently includes:
+
+1. iOS
+2. Android
+3. UWP
+4. Javascript
+5. JavaSE (i.e. the CN1 simulator)
+
+## License
 
 Apache License 2.0
 
-##Dependencies
+## Dependencies
 
-1. The [CN1Pisces](https://github.com/shannah/CN1Pisces) library.
+1. None
 
-##Installation Instructions
+## Installation Instructions
 
 Assuming you have a Codename One application project started in Netbeans:
 
-1. Add the [CN1Pisces](https://github.com/shannah/CN1Pisces) library to your project.
-2. Copy [CN1FontBox.cn1lib](https://github.com/shannah/CN1FontBox/raw/master/dist/CN1FontBox.cn1lib) into your project's `lib` directory.  Then right click on your project's icon in the project explorer, and select "Refresh Libs" from the contextual menu.
+1. Copy [CN1FontBox.cn1lib](https://github.com/shannah/CN1FontBox/raw/master/dist/CN1FontBox.cn1lib) into your project's `lib` directory.  Then right click on your project's icon in the project explorer, and select "Refresh Libs" from the contextual menu.
 
-##Usage Example
+## Usage Examples
+
+
+### Loading TTF File
+
+**From Resources:**
 
 ~~~
-// Get the default font provider.
-FontBoxFontProvider fontProvider = FontBoxFontProvider.getDefaultProvider();
-
-// Load a TTF File that we included in the root of our app's source 
-// directory.            
-InputStream is = Display.getInstance().getResourceAsStream(null, "/Chalkduster.ttf");
-
-// Load the font under the name "Chalkduster"
-fontProvider.loadTTF("Chalkduster", is);
-
-// Register the FontBox font provider with Pisces
-Font.addProvider(fontProvider);
-
-// Create a Pisces rendering context
-pisces.Graphics g = new pisces.Graphics(400,400);
-
-// Set transform and color for text
-g.setTransform(new Matrix().setIdentity());
-g.setColor(pisces.Color.Blue);
-
-// Get font in size 40 (pixels high)
-pisces.Font pfont = Font.getFont("Chalkduster", 40);
-g.setFont(pfont);
-
-// Draw some text            
-g.draw("Hello World", 10,0, 40);
-g.draw("good bye now!", 10, 60, 40);
-
-// Get the font in size 12
-pisces.Font pfont2 = pfont.deriveFont(12);
-g.setFont(pfont2);
-g.setColor(pisces.Color.DarkGray);
-
-// Draw some more text
-g.draw("This was rendered using a Pisces and Fontbox ", 10, 120);
-g.draw("in Codename One ", 10, 140);
-
-pisces.Color c = new pisces.Color(255, 58, 108, 128);
-g.setColor(c);
-
-// Keep font size same, but use affine transform to scale the text
-// We'll make it 2.5x wider and 6x taller            
-float scaleX = 2.5f;
-float scaleY = 6.0f;
-g.setTransform(Matrix.getScaleInstance(scaleX, scaleY));
-
-g.draw("Stay tuned for more...", (int)(20f/scaleX), (int)(160f/scaleY));
-
-
-// Now export Pisces context as an Image and add it to the form
-Image img = g.toImage();
-Label lbl = new Label(img);
-theForm.addComponent(lbl);
+TTFFont font = TTFFont.createFont("MyFont", "/MyFont.ttf");
 ~~~
 
-The output of this code would be something like:
+**From Storage/URL:**
 
-![Example 1](screenshots/example1.png)
+~~~
+TTFFont font = TTFFont.createFontToStorage("MyFont", 
+    "font_MyFont.ttf", 
+    "http://example.com/MyFont.ttf"
+);
+~~~
 
-##Documentation
+**From File System/URL:**
 
-1. [JavaDocs](https://rawgithub.com/shannah/CN1FontBox/master/dist/javadoc/index.html)
+~~~
+TTFFont font = TTFFont.createFontToFileSystem("MyFont", 
+    FileSystemStorage.getInstance().getAppHomePath()+"/fonts/MyFont.ttf", 
+    "http://example.com/MyFont.ttf"
+);
+~~~
+
+**From Cache:**
+
+~~~
+TTFFont font = TTFFont.getFont("MyFont", 12);
+~~~
+
+### Setting Font for Style
+
+~~~
+myLabel.getAllStyles().setFont(font);
+~~~
+
+### Getting Particular Size Font
+
+~~~
+font = font.deriveFont(24); // get size 24 font.
+~~~
+
+### Horizontal and Vertical Scaling
+
+~~~
+font = font.deriveScaled(0.5f, 1.5f);  
+    // scaled 50% horizontal, and 150% vertical
+    
+font = font.deriveHorizontalScaled(0.5f); // scaled 50% horizontally
+
+font = font.deriveVerticalScaled(0.5f); // scaled 50% vertically
+~~~
+
+### Stroking and Filling
+
+~~~
+font = font.deriveStroked(Stroke(1f, Stroke.CAP_BUTT, Stroke.JOIN_MITER, 1f), #ff0000);
+    // Stroke with red 1px outline 
+    
+font = font.deriveStroked(null, 0x0);
+    // Not stroked
+    
+font = font.deriveFilled(true, null);
+    // Filled - fill color determined by graphics context's current color.. e.g. defers to Style's foreground color
+    
+font = font.deriveFilled(true, 0x00ff00);
+    // Filled with green
+    
+font = font.deriveFilled(false, null);
+    // Not filled
+~~~
+
+### Antialias
+
+~~~
+font = font.deriveAntialias(true);
+    // Should be rendered antialiased
+    
+font = font.deriveAntialias(false);
+    // should be rendered without antialias.
+~~~
+
+
+### Drawing Directly on Graphics Context
+
+~~~
+font.drawString(g, "Hello world", x, y);
+~~~
+
+### Appending to existing GeneralPath
+
+~~~
+font.draw(path, "Hello world", x, y, 1f /*opacity*/);
+~~~

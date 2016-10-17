@@ -17,6 +17,7 @@
 package org.apache.fontbox.cff;
 
 
+import ca.weblite.codename1.lang.Rectangle2D;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,7 +25,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.fontbox.cff.encoding.CFFEncoding;
-import ca.weblite.pisces.d.Rectangle2D;
+
 
 /**
  * This class creates all needed AFM font metric data from a CFFFont ready to be read from a AFMPaser.
