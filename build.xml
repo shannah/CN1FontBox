@@ -71,6 +71,8 @@
         <mkdir dir="dist" />
         <zip basedir="build/lib" compress="true" destfile="dist/${application.title}.cn1lib" />
         <copy file="dist/${application.title}.cn1lib" tofile="../CN1FontBoxTest/lib/${application.title}.cn1lib"/>
+        <copy file="dist/${application.title}.cn1lib" tofile="/Users/shannah/weblite/ocr.net/MemeMaker/lib/${application.title}.cn1lib"/>
+        <ant target="refresh-libs" dir="/Users/shannah/weblite/ocr.net/MemeMaker" inheritall="false"/>
     </target>
 
     <target name="buildNativeRIM">

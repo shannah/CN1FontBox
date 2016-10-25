@@ -69,7 +69,7 @@ public class FontBoxFontProvider implements TTFFont.FontProvider{
     
     /**
      * Loads a True Type font from an input stream.  This must be called before
-     * the getFont() method will be able to retrieve the font.
+ the getFont() method will be able to retrieve the font.
      * @param name The name of the font.  Used for looking up later via {@link #getFont(java.lang.String, float) }
      * @param is InputStream with the .ttf file contents.
      * @throws IOException 

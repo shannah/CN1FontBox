@@ -111,11 +111,13 @@ public class TTFFont
             out = provider.getFont(name, size);
             if ( out != null ){
                 out.provider = provider;
+                out.pixelSize = size;
                 return out;
             }
         }
         try {
             out = new TTFFont(name);
+            out.pixelSize = size;
         } catch ( IOException ioe){
             Log.e(ioe);
         }
@@ -373,13 +375,24 @@ public class TTFFont
     private int descent=0;
     
     public int getAscent(){
-        return ascent;
+        int strokeWidth = stroke == null ? 0 : (int)(2 * stroke.getLineWidth());
+        return ((int)(ascent * vscale)) + strokeWidth;
     }
 
     @Override
     public int getHeight() {
-        int strokeWidth = stroke == null ? 0 : (int)(2 * stroke.getLineWidth());
+        int strokeWidth = stroke == null ? 0 : (int)(stroke.getLineWidth());
         return ((int)(getMaxHeight() * vscale)) + strokeWidth;
+    }
+
+    @Override
+    public Object getNativeFont() {
+        return null;
+    }
+
+    @Override
+    public boolean isTTFNativeFont() {
+        return true;
     }
     
     
@@ -462,9 +475,24 @@ public class TTFFont
     public boolean equals(Object o) {
         if (o instanceof TTFFont) {
             TTFFont f = (TTFFont)o;
-            return f.name.equals(name) && f.pixelSize == pixelSize && f.antialias==antialias && f.hscale==hscale && f.vscale==vscale && f.stroke == stroke && f.strokeColor == strokeColor && f.fillColor == fillColor;
+            return f.name.equals(name) && f.pixelSize == pixelSize && f.antialias==antialias && f.hscale==hscale && f.vscale==vscale && f.stroke == stroke && f.strokeColor == strokeColor && f.fillColor == fillColor && f.filled == this.filled;
         }
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 41 * hash + Float.floatToIntBits(this.pixelSize);
+        hash = 41 * hash + Float.floatToIntBits(this.hscale);
+        hash = 41 * hash + Float.floatToIntBits(this.vscale);
+        hash = 41 * hash + (this.stroke != null ? this.stroke.hashCode() : 0);
+        hash = 41 * hash + (this.strokeColor != null ? this.strokeColor.hashCode() : 0);
+        hash = 41 * hash + (this.filled ? 1 : 0);
+        hash = 41 * hash + (this.fillColor != null ? this.fillColor.hashCode() : 0);
+        hash = 41 * hash + (this.antialias ? 1 : 0);
+        hash = 41 * hash + (this.name != null ? this.name.hashCode() : 0);
+        return hash;
     }
 
     
@@ -494,7 +522,6 @@ public class TTFFont
             
                     
             if ( out != null ){
-                
                 out.provider = provider;
                 out.pixelSize = size;
                 out.hscale = hscale;
@@ -726,4 +753,25 @@ public class TTFFont
     public java.util.Iterator<TTFFont.Glyph> iterator(){
         return this.collection.iterator();
     }
+
+    @Override
+    public float getPixelSize() {
+        return pixelSize;
+    }
+
+    @Override
+    public int substringWidth(String str, int offset, int len) {
+        return this.charsWidth(str.toCharArray(), offset, len);
+    }
+
+    @Override
+    public int stringWidth(String str) {
+        return this.charsWidth(str.toCharArray(), 0, str.length());
+    }
+
+   
+    
+    
+    
+    
 }

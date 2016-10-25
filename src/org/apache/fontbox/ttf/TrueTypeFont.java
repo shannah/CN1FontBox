@@ -238,6 +238,7 @@ public class TrueTypeFont
             return fontCache.get(key);
         } else {
             com.codename1.ui.TTFFont f = new com.codename1.ui.TTFFont(asName, new PiscesFontCollection(size));
+            
             HeaderTable h = this.getHeader();
             float upem = h.getUnitsPerEm();
             float ascender = this.getHorizontalHeader().getAscender();
@@ -409,7 +410,7 @@ public class TrueTypeFont
                 
                 float scale = size / upem;
                 ascender = ascender * scale;
-                Transform transform = Transform.makeTranslation(x, y+getHeight()-ascender);
+                Transform transform = Transform.makeTranslation(x, y+ascender);
                 transform.scale(scale, -scale);
 
                 GeneralPath p = getGlyphPath(glyphId);
@@ -428,7 +429,8 @@ public class TrueTypeFont
                 float ascender = TrueTypeFont.this.getHorizontalHeader().getAscender();
                 float scale = size / upem;
                 ascender = ascender * scale;
-                Transform transform = Transform.makeTranslation(x, y+getHeight()-ascender);
+                Transform transform = Transform.makeTranslation(x, y + ascender);
+                //transform.translate(0, getHeight());
                 transform.scale(scale, -scale);
 
                 GeneralPath p = getGlyphPath(glyphId);
