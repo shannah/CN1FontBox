@@ -21,7 +21,6 @@ package org.apache.fontbox.ttf;
 
 import com.codename1.ui.TTFFont;
 import com.codename1.ui.TTFFont.Glyph;
-import com.codename1.io.Log;
 import com.codename1.ui.Graphics;
 import com.codename1.ui.Image;
 import com.codename1.ui.Stroke;
@@ -430,15 +429,9 @@ public class TrueTypeFont
                 float scale = size / upem;
                 ascender = ascender * scale;
                 Transform transform = Transform.makeTranslation(x, y + ascender);
-                //transform.translate(0, getHeight());
                 transform.scale(scale, -scale);
-
                 GeneralPath p = getGlyphPath(glyphId);
-                GeneralPath p2 = new GeneralPath(p);
-                //p.produce(p2);
-                p2.transform(transform);
-                g.append(p2, false);
-                //p2.produce(g);
+                g.append(p.getPathIterator(transform), false);
                 return this;
 
             }
@@ -452,10 +445,6 @@ public class TrueTypeFont
             public Glyph fill(Graphics g, int x, int y, float op) {
                 return draw(g, x, y, op);
             }
-
-
-
-
         }
         
     }

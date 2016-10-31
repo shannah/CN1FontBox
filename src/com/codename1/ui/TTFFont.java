@@ -108,8 +108,11 @@ public class TTFFont
             FontBoxFontProvider.getDefaultProvider();
         }
         for ( FontProvider provider: providers){
-            out = provider.getFont(name, size);
-            if ( out != null ){
+            TTFFont src = provider.getFont(name, size);
+            if ( src != null ){
+                out = new TTFFont(name, src.collection);
+                out.ascent = src.ascent;
+                out.descent = src.descent;
                 out.provider = provider;
                 out.pixelSize = size;
                 return out;
@@ -518,7 +521,12 @@ public class TTFFont
 
     public TTFFont deriveFont(float size){
         if ( provider != null ){
-            TTFFont out = provider.getFont(name, size);
+            TTFFont src = provider.getFont(name, size);
+            TTFFont out =  new TTFFont(name, src.collection);
+            
+            out.setAscent(src.ascent);
+            out.setDescent(src.descent);
+            
             
                     
             if ( out != null ){
@@ -566,7 +574,12 @@ public class TTFFont
     
     public TTFFont deriveFont(float size, float hScale, float vScale, Stroke stroke, Integer fillColor, Integer strokeColor, boolean antialias, boolean filled){
         if ( provider != null ){
-            TTFFont out = provider.getFont(name, size);
+            TTFFont src = provider.getFont(name, size);
+            TTFFont out =  new TTFFont(name, src.collection);
+            
+            out.setAscent(src.ascent);
+            out.setDescent(src.descent);
+            //TTFFont out = provider.getFont(name, size);
               
             if ( out != null ){
                 out.pixelSize = size;
@@ -664,6 +677,7 @@ public class TTFFont
                 char ch;
                 int px = x;
                 int py = y;
+                
                 Glyph glyph;
                 for (int cc = 0; cc < clen; cc++){
                     ch = cary[cc];
