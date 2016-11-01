@@ -19,8 +19,9 @@
 package org.apache.fontbox.ttf;
 
 import ca.weblite.codename1.lang.Point2D;
-import com.codename1.io.Log;
 import com.codename1.ui.geom.GeneralPath;
+import java.util.ArrayList;
+import java.util.List;
 
 
 
@@ -104,128 +105,91 @@ public class Glyph2D
     {
         if (glyphPath == null)
         {
-            glyphPath = calculatePath();
+            glyphPath = calculatePath(points);
         }
         return glyphPath;
     }
     
-    private GeneralPath calculatePath()
-    {
-        GeneralPath path = new GeneralPath();
-        int numberOfPoints = points.length;
-        //Log.p("Num points in glyph "+numberOfPoints);
-        int i=0;
-        boolean endOfContour = true;
-        Point startingPoint = null;
-        Point lastCtrlPoint = null;
-        while (i < numberOfPoints) 
-        {
-            Point point = points[i%numberOfPoints];
-            Point nextPoint1 = points[(i+1)%numberOfPoints];
-            Point nextPoint2 = points[(i+2)%numberOfPoints];
-            // new contour
-            if (endOfContour) 
-            {
-                // skip endOfContour points
-                if (point.endOfContour)
-                {
-                    i++;
-                    continue;
-                }
-                // move to the starting point
-                path.moveTo(point.x, point.y);
-                endOfContour = false;
-                startingPoint = point;
-            }
-            // lineTo
-            if (point.onCurve && nextPoint1.onCurve) 
-            {
-                path.lineTo(nextPoint1.x, nextPoint1.y);
-                i++;
-                if (point.endOfContour || nextPoint1.endOfContour)
-                {
-                    endOfContour = true;
-                    path.closePath();
-                }
-                continue;
+    
+    private GeneralPath calculatePath(Point[] points) 
+    { 
+        GeneralPath path = new GeneralPath(); 
+        int start = 0; 
+        for (int p = 0, len = points.length; p < len; ++p) 
+        { 
+         if (points[p].endOfContour) 
+            { 
+          Point firstPoint = points[start]; 
+          Point lastPoint = points[p]; 
+          List<Point> contour = new ArrayList<Point>(); 
+          for (int q = start; q <= p; ++q) 
+                { 
+           contour.add(points[q]); 
+                } 
+          if (points[start].onCurve) 
+                { 
+           // using start point at the contour end 
+           contour.add(firstPoint); 
+                } 
+          else if (points[p].onCurve) 
+                { 
+           // first is off-curve point, trying to use one from the end 
+           contour.add(0, lastPoint); 
+                } 
+                else 
+                { 
+                 // start and end are off-curve points, creating implicit one 
+                 Point pmid = midValue(firstPoint, lastPoint); 
+                 contour.add(0, pmid); 
+                 contour.add(pmid); 
+                } 
+          moveTo(path, contour.get(0)); 
+          for (int j = 1, clen = contour.size(); j < clen; j++) 
+                { 
+           Point pnow = contour.get(j); 
+           if (pnow.onCurve) 
+           { 
+            lineTo(path, pnow); 
+           } 
+           else if (contour.get(j + 1).onCurve) 
+           { 
+            quadTo(path, pnow, contour.get(j + 1)); 
+            ++j; 
+           } 
+           else 
+           { 
+            quadTo(path, pnow, midValue(pnow, contour.get(j + 1))); 
+           } 
+                } 
+          start = p + 1; 
             } 
-            // quadratic bezier
-            if (point.onCurve && !nextPoint1.onCurve && nextPoint2.onCurve) 
-            {
-                if (nextPoint1.endOfContour)
-                {
-                    // use the starting point as end point
-                    path.quadTo(nextPoint1.x, nextPoint1.y, startingPoint.x, startingPoint.y);
-                }
-                else
-                {
-                    path.quadTo(nextPoint1.x, nextPoint1.y, nextPoint2.x, nextPoint2.y);
-                }
-                if (nextPoint1.endOfContour || nextPoint2.endOfContour)
-                {
-                    endOfContour = true;
-                    path.closePath();
-                }
-                i+=2;
-                lastCtrlPoint = nextPoint1;
-                continue;
-            } 
-            if (point.onCurve && !nextPoint1.onCurve && !nextPoint2.onCurve) 
-            {
-                // interpolate endPoint
-                int endPointX = midValue(nextPoint1.x, nextPoint2.x);
-                int endPointY = midValue(nextPoint1.y, nextPoint2.y);
-                path.quadTo(nextPoint1.x, nextPoint1.y, endPointX, endPointY);
-                if (point.endOfContour || nextPoint1.endOfContour || nextPoint2.endOfContour)
-                {
-                    path.quadTo(nextPoint2.x, nextPoint2.y, startingPoint.x, startingPoint.y);
-                    endOfContour = true;
-                    path.closePath();
-                }
-                i+=2;
-                lastCtrlPoint = nextPoint1;
-                continue;
-            } 
-            if (!point.onCurve && !nextPoint1.onCurve) 
-            {
-                float[] pt = path.getCurrentPoint();
-                Point2D lastEndPoint = new Point2D(pt[0], pt[1]);
-                // calculate new control point using the previous control point
-                if ( lastCtrlPoint != null ){
-                    lastCtrlPoint = new Point(midValue(lastCtrlPoint.x, (int)lastEndPoint.getX()), 
-                            midValue(lastCtrlPoint.y, (int)lastEndPoint.getY()));
-                } else {
-                    lastCtrlPoint = new Point((int)lastEndPoint.getX(), (int)lastEndPoint.getY());
-                }
-                // interpolate endPoint
-                int endPointX = midValue((int)lastEndPoint.getX(), nextPoint1.x);
-                int endPointY = midValue((int)lastEndPoint.getY(), nextPoint1.y);
-                path.quadTo(lastCtrlPoint.x, lastCtrlPoint.y, endPointX, endPointY);
-                if (point.endOfContour || nextPoint1.endOfContour)
-                {
-                    endOfContour = true;
-                    path.closePath();
-                }
-                i++;
-                continue;
-            } 
-            if (!point.onCurve && nextPoint1.onCurve) 
-            {
-                path.quadTo(point.x, point.y, nextPoint1.x, nextPoint1.y);
-                if (point.endOfContour || nextPoint1.endOfContour)
-                {
-                    endOfContour = true;
-                    path.closePath();
-                }
-                i++;
-                lastCtrlPoint = point;
-                continue;
-            } 
-            System.err.println("Unknown glyph command!!");
-            break;
-        }
-        return path;
+        } 
+        return path; 
+    } 
+    
+    private void moveTo(GeneralPath path, Point point) {
+        path.moveTo(point.x, point.y);
     }
+    
+    private void lineTo(GeneralPath path, Point point) 
+    { 
+        path.lineTo(point.x, point.y); 
+//        Log.v("PdfBoxAndroid", "lineTo: " + String.format("%d,%d", point.x, point.y)); 
+    } 
+    
+    private void quadTo(GeneralPath path, Point ctrlPoint, Point point) 
+    { 
+        path.quadTo(ctrlPoint.x, ctrlPoint.y, point.x, point.y); 
+//        Log.v("PdfBoxAndroid", "quadTo: " + String.format("%d,%d %d,%d", ctrlPoint.x, ctrlPoint.y, 
+//                    point.x, point.y)); 
+    }
+    
+    private Point midValue(Point point1, Point point2) 
+    { 
+        return new Point(midValue(point1.x, point2.x), midValue(point1.y, point2.y)); 
+    } 
+    
+    
 
     private int midValue(int a, int b) 
     {
@@ -255,6 +219,10 @@ public class Glyph2D
         public Point(int xValue, int yValue) 
         {
             this(xValue, yValue, false, false);
+        }
+        
+        public String toString() {
+            return "Point{x="+x+", y="+y+", onCurve="+onCurve+", endOfContour="+endOfContour;
         }
     }
 
