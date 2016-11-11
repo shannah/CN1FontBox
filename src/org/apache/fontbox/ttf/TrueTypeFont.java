@@ -297,7 +297,7 @@ public class TrueTypeFont
             int glyphId = -1;
             CMAPEncodingEntry[] maps = getCMAP().getCmaps();
             for ( int i=0; i<maps.length; i++){
-                glyphId = maps[i].getGlyphId(c);
+                glyphId = maps[i].getGlyphId((int)c);
                 if ( glyphId >= 0 ){
                    break;
                 }
@@ -431,6 +431,9 @@ public class TrueTypeFont
                 Transform transform = Transform.makeTranslation(x, y + ascender);
                 transform.scale(scale, -scale);
                 GeneralPath p = getGlyphPath(glyphId);
+                if (p == null) {
+                    return this;
+                }
                 g.append(p.getPathIterator(transform), false);
                 return this;
 

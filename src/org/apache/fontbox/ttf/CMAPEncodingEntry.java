@@ -22,9 +22,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import ca.weblite.codename1.lang.Number;
 import ca.weblite.codename1.lang.Integer;
-import ca.weblite.codename1.lang.Double;
 
 
 /**
@@ -560,12 +558,43 @@ public class CMAPEncodingEntry
      */
     public int getGlyphId(int characterCode)
     {
+//        Log.p("In CMAPEncodingEntry getGlyphId looking for char code "+characterCode);
+//        Log.p("Integer val: "+new Integer(characterCode));
+//        Log.p("int val: "+characterCode);
+//        Log.p("char val: "+((char)characterCode));
+//        Log.p("Integer(char) val: "+new Integer((char)characterCode));
+//        Log.p("characterCodeToGlyphId keys: "+characterCodeToGlyphId.keySet());
+//        Log.p("characterCodeToGlyphId values: "+characterCodeToGlyphId.values());
+//        Log.p("Value in map for 84: "+characterCodeToGlyphId.get(84));
+//        Log.p("Value in map for 84 (boxed): "+characterCodeToGlyphId.get(new Integer(84)));
+//        Log.p("Integer(characterCode).hashCode()="+new Integer(characterCode).hashCode());
+//        Log.p("Integer(characterCode).hashCode()==Integer(84).hashCode(): " + (new Integer(characterCode).hashCode() == new Integer(84).hashCode()));
+//        Log.p("Integer(characterCode).equals(Integer(84)): "+(new Integer(characterCode).equals(new Integer(84))));
+//        StringBuilder sb = new StringBuilder();
+//        for (Integer k : characterCodeToGlyphId.keySet()) {
+//            if (k.intValue() == 84) {
+//                Log.p("Iterating on 84");
+//                Log.p("k="+k+",hasCode="+k.hashCode()+", equals()? "+k.equals(new Integer(84)));
+//                Log.p("Val of "+k+"="+characterCodeToGlyphId.get(k));
+//                Log.p("Val of "+84+"="+characterCodeToGlyphId.get(new Integer(84)));
+// 
+//            }
+//            sb.append(k).append("=>").append(characterCodeToGlyphId.get(k)).append(", ");
+//        }
+//        Log.p("KV={"+sb.toString()+"}");
         if (characterCodeToGlyphId.containsKey(new Integer(characterCode)))
         {
-            return characterCodeToGlyphId.get(new Integer(characterCode)).intValue();
+//            Log.p("Found code for characterCode: ");
+            int out = characterCodeToGlyphId.get(new Integer(characterCode)).intValue();
+//            Log.p("Code is "+out);
+            return out;
         }
         else
         {
+//            Log.p("Failed to find code");
+//            if (characterCode == 84) {
+//                throw new RuntimeException("Stopping right here");
+//            }
             return 0;
         }
     }

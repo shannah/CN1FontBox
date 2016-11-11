@@ -33,12 +33,16 @@ public abstract class TTFDataStream
     
     static boolean isIOS = false;
     static boolean isJavascript = false;
+    static boolean isWindows = false;
     static {
-        if ( "ios".equals(Display.getInstance().getPlatformName())){
+        if ( !Display.getInstance().isSimulator() && "ios".equals(Display.getInstance().getPlatformName())){
             isIOS = true;
         }
         if ( "HTML5".equals(Display.getInstance().getPlatformName())) {
             isJavascript = true;
+        }
+        if ( !Display.getInstance().isSimulator() && "win".equals(Display.getInstance().getPlatformName())) {
+            isWindows = true;
         }
     }
 
@@ -85,6 +89,8 @@ public abstract class TTFDataStream
             if ( isIOS && "UTF-16".equals(charset) ){
                 charset = "ISO-8859-1";
             } else if (isJavascript && "UTF-16".equals(charset)) {
+                charset = "ISO-8859-1";
+            } else if (isWindows && "UTF-16".equals(charset)) {
                 charset = "ISO-8859-1";
             }
             return new String(buffer, charset);

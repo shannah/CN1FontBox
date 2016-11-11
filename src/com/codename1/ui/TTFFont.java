@@ -24,7 +24,6 @@
 package com.codename1.ui;
 
 
-import com.codename1.io.FileSystemStorage;
 import com.codename1.io.Log;
 import com.codename1.ui.Display;
 import com.codename1.ui.Graphics;

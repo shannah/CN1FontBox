@@ -18,7 +18,6 @@
  */
 package org.apache.fontbox.ttf;
 
-import ca.weblite.codename1.lang.Point2D;
 import com.codename1.ui.geom.GeneralPath;
 import java.util.ArrayList;
 import java.util.List;
